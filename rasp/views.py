@@ -6,6 +6,7 @@ import psycopg2 as pg
 #import mysql.connector
 #import pyodbc
 import os
+from django.conf import settings
 
 def current_datetime(request, teste):
 
@@ -99,5 +100,17 @@ def current_datetime(request, teste):
     return HttpResponse(html)
 
 def HelloWorld(request):
-    html = "<html><body><h1>Hello!</h1> <h3>Eagle WebService is Live!</h3></body></html>"
+    html = "<html><body><h1>Hello %s!</h1> <h3>Eagle WebService is Live!</h3></body></html>" % settings.DB_NAME
+    connection = pg.connect(
+        user=settings.DB_USER,
+        password=settings.DB_PASSWORD,
+        host=settings.DB_HOST,
+        port=settings.DB_PORT,
+        database=settings.DB_NAME
+    )
+    curs = connection.cursor()
+    curs.execute('SELECT*FROM normasite')
+    
+    print(curs.fetchall())
+    
     return HttpResponse(html)
