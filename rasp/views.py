@@ -100,6 +100,8 @@ def current_datetime(request, teste):
     return HttpResponse(html)
 
 def HelloWorld(request):
+    
+    print(settings.DB_NAME)
     html = "<html><body><h1>Hello %s!</h1> <h3>Eagle WebService is Live!</h3></body></html>" % settings.DB_NAME
     connection = pg.connect(
         user=settings.DB_USER,
