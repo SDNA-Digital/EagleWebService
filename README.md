@@ -24,8 +24,8 @@ Esse projeto é destinado a montar um WebService, fornecendo serviços de raspag
 ## **Guias**
 Aqui estão detalhadas o que é preciso para rodar o sistema localmente.
 
-<!-- * **[Installation Guide](docs/readme/INSTALL.md)**
-* **[Developing Guide](docs/readme/DEVELOP.md)**
+* **[Guia de Instalação](docs/readme/INSTALL.md)**
+<!-- * **[Developing Guide](docs/readme/DEVELOP.md)**
 * **[Deployment Guide](docs/readme/DEPLOY.md)**
 * **[Postman Collection](docs/postman/postman_collection.json)** -->
 
