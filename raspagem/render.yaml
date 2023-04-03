@@ -3,7 +3,7 @@ services:
     name: EagleWebService
     env: python
     buildCommand: "./build.sh"
-    startCommand: "gunicorn mysite.wsgi:application"
+    startCommand: "gunicorn EagleWebService.wsgi:application"
     envVars:
       - key: SECRET_KEY
         generateValue: true
