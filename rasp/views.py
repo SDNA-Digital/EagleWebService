@@ -14,7 +14,15 @@ def current_datetime(request, teste):
 
     listadelinks = []
 
-    connection = pg.connect(user="postgres", password="3621", host="localhost", port="5432", database="DPP")
+    connection = pg.connect(
+        user=settings.DB_USER,
+        password=settings.DB_PASSWORD,
+        host=settings.DB_HOST,
+        port=settings.DB_PORT,
+        database=settings.DB_NAME
+    )
+
+    # connection = pg.connect(user="postgres", password="3621", host="localhost", port="5432", database="DPP")
     curs = connection.cursor()
     curs.execute('SELECT*FROM normasite')
 

@@ -1,6 +1,8 @@
 from django.http import HttpResponse
 import pandas as pd
 import pyodbc
+from django.conf import settings
+
 
 def import_natureza_atividade(request):
   html = "<html><body>Natureza de atividade importada</body></html>"
@@ -16,10 +18,17 @@ def import_natureza_atividade(request):
       "SubGrupo": 7,
   }
 
-  DadosCon = ("Driver={SQL SERVER};" "Server=lucas\sqlexpress;" "Database=EagleV2;" "Trusted_connection = yes;")
-  # DadosCon = ("Driver={SQL SERVER};" "Server=lucas\sqlexpress;" "Database=Teste_Scrapper;" "Trusted_connection = yes;")
-  Con = pyodbc.connect(DadosCon)
-  cursor = Con.cursor()
+
+#   DadosCon = ("Driver={SQL SERVER};" "Server=lucas\sqlexpress;" "Database=EagleV2;" "Trusted_connection = yes;")
+#   Con = pyodbc.connect(DadosCon)
+  conn = pg.connect(
+    user=settings.DB_USER,
+    password=settings.DB_PASSWORD,
+    host=settings.DB_HOST,
+    port=settings.DB_PORT,
+    database=settings.DB_NAME
+  )
+  cursor = conn.cursor()
   print("Conexão Bem Sucedida")
 
   def InserirGrupo(grupo, tipo):

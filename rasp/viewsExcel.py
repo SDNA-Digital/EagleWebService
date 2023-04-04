@@ -5,6 +5,7 @@ import psycopg2 as pg
 from django.conf import settings
 
 def InportExcel(request, id):
+
     html = "<html><body>Done! %s </body></html>"
 
     conn = pg.connect(
@@ -24,10 +25,7 @@ def InportExcel(request, id):
         Arquivo: object = resultado[0]
         Tabela = resultado[1]
 
-    # print(Arquivo)
-    # print(Tabela)
-
-    query = f"""select ConfigArquivosAssociacaoAtt, ConfigArquivosAssociacaoColuna from ConfigArquivosAssociacao where ConfigArquivosId = {id}"""
+    query = f"""select ConfigArquivosAssociacaoAtt, ConfigArquivosAssociacaoColuna from ConfigArquivosAssociacao where ConfigArquivosId = {id} order by configarquivosassociacaocoluna"""
     cursor.execute(query)
     resultados = cursor.fetchall()
     contador = 0
@@ -47,61 +45,52 @@ def InportExcel(request, id):
         else:
             contadoraux += 1
             listaatt += attini + ','
-
-    # pega os dados do arquivo excel e monta a query de gravação
+    print(listaatt)
     # abre o arquivo excel
     wb = load_workbook(Arquivo)
     ws = wb.active
-    contalinhas = 0
-    for row in ws.rows:
-        contalinhas += 1
 
-    valores = []
-    contalinhas += 1
-    contavalor = 0
-    x = 2
-    for row in range(x, contalinhas):
-        print(valores)
-    print(row)
-    for i in range(contador):
-        j = i + 1
-        letter = get_column_letter(j)
-        valores.append(ws[letter + str(row)].value)
-        formato = ws[letter + str(row)].value
-    print(valores)
-    contadoraux = 0
-    listavalor = ''
-    for valorcampo in valores:
-        tipo = str(type(valorcampo))
-        tipocompara = "<class 'datetime.datetime'>"
-        concatena = valorcampo
+    # itera sobre todas as linhas no arquivo Excel
+    for row in ws.iter_rows(min_row=2):
+        valores = []
 
-        if tipo == tipocompara:
-            concatena = ''
-            concatena = str(valorcampo)
-            concatena = "to_date('" + concatena[8:10] + "/" + concatena[5:7] + "/" + concatena[0:4] + "', 'DD/MM/YYYY')"
+        # itera sobre todas as colunas na linha atual
+        for i in range(contador):
+            j = i + 1
+            letter = get_column_letter(j)
+            valores.append(ws[letter + str(row[0].row)].value)
+            formato = ws[letter + str(row[0].row)].value
 
-        if contadoraux == contador - 1:
+        contadoraux = 0
+        listavalor = ''
+        for valorcampo in valores:
+            tipo = str(type(valorcampo))
+            tipocompara = "<class 'datetime.datetime'>"
+            concatena = valorcampo
+
             if tipo == tipocompara:
-                listavalor += concatena
-            else:
-                if concatena is not None:
-                    listavalor += "'" + concatena + "'"
-                break
-        else:
-            if tipo == tipocompara:
-                listavalor += concatena + ','
-            else:
-                listavalor += "'" + concatena + "'" + ','
-            contadoraux += 1
+                concatena = ''
+                concatena = str(valorcampo)
+                concatena = "to_date('" + concatena[8:10] + "/" + concatena[5:7] + "/" + concatena[0:4] + "', 'DD/MM/YYYY')"
 
-    montaquery = 'INSERT INTO ' + Tabela + ' (' + listaatt + ') Values(' + listavalor + ')'
-    print(montaquery)
-    query = montaquery
-    cursor.execute(query)
-    conn.commit()
-    x += 1
-    valores = []
+            if contadoraux == contador - 1:
+                if tipo == tipocompara:
+                    listavalor += str(concatena)
+                else:
+                    if concatena is not None:
+                        listavalor += "'" + str(concatena) + "'"
+                    break
+            else:
+                if tipo == tipocompara:
+                    listavalor += str(concatena) + ','
+                else:
+                    listavalor += "'" + str(concatena) + "'" + ','
+                contadoraux += 1
 
+        montaquery = 'INSERT INTO ' + Tabela + ' (' + listaatt + ') Values(' + listavalor + ')'
+        query = montaquery
+        print(montaquery)
+        cursor.execute(query)
+        conn.commit()
 
     return HttpResponse(html)
