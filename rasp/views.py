@@ -8,11 +8,12 @@ import psycopg2 as pg
 import os
 from django.conf import settings
 
-def current_datetime(request, teste):
+def raspagem(request):
 
-    html = "<html><body>Done! %s </body></html>" % teste
+    html = "<html><body>Done!</body></html>"
 
     listadelinks = []
+
 
     connection = pg.connect(
         user=settings.DB_USER,
@@ -21,8 +22,6 @@ def current_datetime(request, teste):
         port=settings.DB_PORT,
         database=settings.DB_NAME
     )
-
-    # connection = pg.connect(user="postgres", password="3621", host="localhost", port="5432", database="DPP")
     curs = connection.cursor()
     curs.execute('SELECT*FROM normasite')
 
@@ -90,16 +89,24 @@ def current_datetime(request, teste):
             print(classificacao)
             print(conteudoLei.text)
 
-            curs.execute(
-                "INSERT INTO norma (normanome, normanumero, normadescricaocurta, normainiciovigencia, normapublicadoem, normaurl, normaclassificacao, normatextodocumento, normadoc)VALUES (%s, %s, %s,%s, %s, %s, %s, %s, %s);",
-                (nomeLei.text, numero, ementaLei.text, dataVigencia, dataPublicacao.text, link_norma, classificacao,
-                 conteudoLei.text, True))
+            query = f"""select normanome from norma where normanome = '{nomeLei.text}'"""
+            curs.execute(query)
+            resultados = curs.fetchall()
+            encontrado = 0
 
+            for x in resultados:
+                encontrado = 1
+                break
+            if encontrado == 0:
+                curs.execute(
+                    "INSERT INTO norma (normanome, normanumero, normadescricaocurta, normainiciovigencia, normapublicadoem, normaurl, normaclassificacao, normatextodocumento, normadoc)VALUES (%s, %s, %s,%s, %s, %s, %s, %s, %s);",
+                    (nomeLei.text, numero, ementaLei.text, dataVigencia, dataPublicacao.text, link_norma, classificacao,
+                     conteudoLei.text, True))
             # curs.execute(f"INSERT INTO norma (numerolei, nomelei, ementalei) VALUES ('{numero}', '{nomeLei.text}', '{ementaLei.text}');")
 
             connection.commit()
-            x = r"C:\KBs\Eagle\NETFrameworkPostgreSQL003\Web\bin\aprc_fluxonormainicial.exe"
-            os.startfile(x)
+            #x = r"http://20.226.94.34/eaglenexus/bin/aprc_fluxonormainicial.exe"
+            #os.startfile(x)
 
     curs.close()
     connection.close()
