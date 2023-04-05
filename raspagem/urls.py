@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from rasp.views import current_datetime, HelloWorld
+from rasp.views import raspagem, HelloWorld
 from rasp.viewsInportWord import InportWord
 from rasp.viewsExcel import InportExcel
 from rasp.viewspdf import Inportpdf
@@ -24,7 +24,7 @@ from rasp.viewsNatureza import import_natureza_atividade
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('hello/', HelloWorld),
-    path('script/', current_datetime),
+    path('raspagem/', raspagem),
     path('import/natureza-atividade/', import_natureza_atividade),
     path('inportword/<path:caminho>/<slug:id>/<slug:tabela>/<slug:campo>/<slug:indice>/', InportWord),
     path('inportexcel/<slug:id>/', InportExcel),
