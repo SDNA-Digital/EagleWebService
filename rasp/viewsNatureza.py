@@ -1,7 +1,8 @@
 from django.http import HttpResponse
 import pandas as pd
-import pyodbc
+# import pyodbc
 from django.conf import settings
+import psycopg2 as pg
 
 
 def import_natureza_atividade(request):
@@ -19,8 +20,8 @@ def import_natureza_atividade(request):
   }
 
 
-#   DadosCon = ("Driver={SQL SERVER};" "Server=lucas\sqlexpress;" "Database=EagleV2;" "Trusted_connection = yes;")
-#   Con = pyodbc.connect(DadosCon)
+  # DadosCon = ("Driver={SQL SERVER};" "Server=lucas\sqlexpress;" "Database=EagleV2;" "Trusted_connection = yes;")
+  # conn = pyodbc.connect(DadosCon)
   conn = pg.connect(
     user=settings.DB_USER,
     password=settings.DB_PASSWORD,
@@ -69,7 +70,7 @@ def import_natureza_atividade(request):
   ]
 
   for name in file_names:
-      uri = f"C:\\model\\ESTRUTURACBO\\{name}.csv"
+      uri = f"./rasp/files/natureza_atividade/{name}.csv"
       grupo = pd.read_csv(uri, sep= ";", encoding='latin-1')
       print("\n---------- "+ name +" ----------\n")
 
