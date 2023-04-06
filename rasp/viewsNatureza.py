@@ -57,7 +57,7 @@ def import_natureza_atividade(request):
                   VALUES
                   ('{titulo}', 'A', '{codigo}', '{tipo}')"""
               cursor.execute(query)
-              cursor.commit()
+              conn.commit()
 
   file_names = [
       "Familia",
