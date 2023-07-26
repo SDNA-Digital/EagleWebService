@@ -4,7 +4,7 @@ from openpyxl.utils import get_column_letter
 import psycopg2 as pg
 from django.conf import settings
 
-def InportExcel(request, id):
+def InportExcel(request, caminho, id):
 
     html = "<html><body>Done! %s </body></html>"
 
@@ -14,16 +14,16 @@ def InportExcel(request, id):
         host=settings.DB_HOST,
         port=settings.DB_PORT,
         database=settings.DB_NAME
-    )
+	)
 
     cursor = conn.cursor()
-    query = f"""select ConfigArquivosLocal, ConfigArquivosTabela from ConfigArquivos where ConfigArquivosId = {id}"""
+    query = f"""select ConfigArquivosTabela from ConfigArquivos where ConfigArquivosId = {id}"""
 
     cursor.execute(query)
-    resultados = cursor.fetchall()
-    for resultado in resultados:
-        Arquivo: object = resultado[0]
-        Tabela = resultado[1]
+    resultado = cursor.fetchone()
+
+    
+    Tabela = resultado[0]
 
     query = f"""select ConfigArquivosAssociacaoAtt, ConfigArquivosAssociacaoColuna from ConfigArquivosAssociacao where ConfigArquivosId = {id} order by configarquivosassociacaocoluna"""
     cursor.execute(query)
@@ -45,9 +45,9 @@ def InportExcel(request, id):
         else:
             contadoraux += 1
             listaatt += attini + ','
-    print(listaatt)
+    
     # abre o arquivo excel
-    wb = load_workbook(Arquivo)
+    wb = load_workbook(caminho)
     ws = wb.active
 
     # itera sobre todas as linhas no arquivo Excel
@@ -87,10 +87,53 @@ def InportExcel(request, id):
                     listavalor += "'" + str(concatena) + "'" + ','
                 contadoraux += 1
 
+        
         montaquery = 'INSERT INTO ' + Tabela + ' (' + listaatt + ') Values(' + listavalor + ')'
         query = montaquery
-        print(montaquery)
+       
         cursor.execute(query)
         conn.commit()
 
     return HttpResponse(html)
+
+def ExportExcel(request, caminho, id):
+
+    conn = pg.connect(
+        user=settings.DB_USER,
+        password=settings.DB_PASSWORD,
+        host=settings.DB_HOST,
+        port=settings.DB_PORT,
+        database=settings.DB_NAME
+	)
+
+    cursor = conn.cursor()
+    query = f"""select ConfigArquivosTabela from ConfigArquivos where ConfigArquivosId = {id}"""
+    cursor.execute(query)
+
+    confregistro = cursor.fetchone()
+
+    tabela = confregistro[0]
+
+    query = f"""select * from {tabela}"""
+
+    cursor.execute(query)
+    registros = cursor.fetchall()
+
+
+    wb = Workbook()
+    ws = wb.active
+
+
+    cabecalhos = [i[0] for i in cursor.description]
+    for coluna, cabecalho in enumerate(cabecalhos):
+        ws.cell(row=1, column=coluna+1, value=cabecalho)
+
+
+    for linha, registro in enumerate(registros):
+        for coluna, valor in enumerate(registro):
+            ws.cell(row=linha+2, column=coluna+1, value=valor)
+
+    
+    wb.save(caminho)
+  
+    return  HttpResponse('Done')
